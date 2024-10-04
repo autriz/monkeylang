@@ -62,6 +62,20 @@ macro_rules! int {
 }
 
 #[macro_export]
+macro_rules! float {
+    ($value:expr) => {
+        $crate::primitive!(Float => $value)
+    };
+}
+
+#[macro_export]
+macro_rules! hex {
+    ($value:expr) => {
+        $crate::primitive!(Hex => $value)
+    };
+}
+
+#[macro_export]
 macro_rules! string {
     ($value:expr) => {
         $crate::primitive!(String => String::from($value))

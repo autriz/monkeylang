@@ -7,6 +7,8 @@ pub enum Token {
 
     Ident(String),
     Int(String),
+    Float(String),
+    Hex(String),
     String(String),
     Assign,
 
@@ -46,6 +48,8 @@ impl Display for Token {
             Token::Eof => write!(f, "Eof"),
             Token::Ident(x) => write!(f, "Ident({})", x),
             Token::Int(x) => write!(f, "Int({})", x),
+            Token::Float(x) => write!(f, "Float({})", x),
+            Token::Hex(x) => write!(f, "Hex({})", x),
             Token::String(x) => write!(f, "String({})", x),
             Token::Assign => write!(f, "Assign"),
             Token::Bang => write!(f, "Bang"),
@@ -90,6 +94,8 @@ impl Token {
             Token::Eof => "Eof".to_string(),
             Token::Ident(x) => format!("{}", x),
             Token::Int(x) => format!("{}", x),
+            Token::Float(x) => format!("{}", x),
+            Token::Hex(x) => format!("{}", x),
             Token::String(x) => format!("\"{}\"", x),
             Token::Assign => "=".to_string(),
             Token::Bang => "!".to_string(),

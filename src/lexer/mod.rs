@@ -99,9 +99,7 @@ impl Lexer {
 				});
 			},
 			b'0'..=b'9' => {
-				let int = self.read_int();
-
-				return Ok(Token::Int(int));
+				return Ok(self.read_digit());
 			},
 			0 => Token::Eof,
 			_ => Token::Illegal,
@@ -157,10 +155,43 @@ impl Lexer {
 		return String::from_utf8_lossy(&self.input[pos..self.position]).to_string();
 	}
 
-	fn read_int(&mut self) -> String {
+	fn read_digit(&mut self) -> Token {
+		if self.ch == b'0' && self.peek() == b'x' {
+			return Token::Hex(self.read_hex());
+		}
+		else {
+			return self.read_int_or_float();
+		}
+	}
+
+	fn read_int_or_float(&mut self) -> Token {
 		let pos = self.position;
 
-		while self.ch.is_ascii_digit() {
+		let mut is_float = false;
+
+		while self.ch.is_ascii_digit() || self.ch == b'.' || self.ch == b'E' || self.ch == b'e' || self.ch == b'-' || self.ch == b'+' {
+			match self.ch {
+				b'.' | b'E' | b'e' => {
+					if !is_float { is_float = true; }
+				},
+				_ => {}
+			}
+			self.read_char();
+		}
+
+		let val = String::from_utf8_lossy(&self.input[pos..self.position]).to_string();
+
+		if is_float {
+			Token::Float(val)
+		} else {
+			Token::Int(val)
+		}
+	}
+
+	fn read_hex(&mut self) -> String {
+		let pos = self.position;
+
+		while self.ch.is_ascii_hexdigit() || self.ch == b'x' {
 			self.read_char();
 		}
 
@@ -213,6 +244,9 @@ mod test {
 
 			!-/*5;
 			5 < 10 > 5;
+			1e-9;
+			10.54;
+			0xA3;
 
 			if (5 < 10) {
 				return true;
@@ -277,6 +311,12 @@ mod test {
 			Token::Int(String::from("10")),
 			Token::GreaterThan,
 			Token::Int(String::from("5")),
+			Token::Semicolon,
+			Token::Float(String::from("1e-9")),
+			Token::Semicolon,
+			Token::Float(String::from("10.54")),
+			Token::Semicolon,
+			Token::Hex(String::from("0xA3")),
 			Token::Semicolon,
 			Token::If,
 			Token::LParen,

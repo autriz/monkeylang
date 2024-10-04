@@ -111,7 +111,7 @@ impl From<&Token> for Precedence {
 
 #[cfg(test)]
 mod test {
-    use crate::{block_stmt, bool, expr, expr_stmt, ident, infix, int, let_stmt, lexer::Lexer, prefix, return_stmt, string};
+    use crate::{block_stmt, bool, expr, expr_stmt, float, hex, ident, infix, int, let_stmt, lexer::Lexer, prefix, return_stmt, string};
 
     use super::Parser;
 
@@ -120,12 +120,16 @@ mod test {
         let input = r#"
             let x1 = 10;
             let y = 15;
+            let z = 10.54;
+            let w = 0xF;
             let foobar = 838383;
         "#;
 
         let expected = vec![
             let_stmt!("x1" => int!(10)),
             let_stmt!("y" => int!(15)),
+            let_stmt!("z" => float!(10.54)),
+            let_stmt!("w" => hex!(0xF)),
             let_stmt!("foobar" => int!(838383)),
         ];
 

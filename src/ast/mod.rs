@@ -19,7 +19,7 @@ impl Display for Program {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum Statement {
     Let(Let),
     Return(Return),
@@ -55,7 +55,7 @@ impl Display for Statement {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Let {
     pub name: Identifier,
     pub value: Expression
@@ -97,7 +97,7 @@ impl Display for Let {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Return {
     pub value: Expression,
 }
@@ -118,7 +118,7 @@ impl Display for Return {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Block {
     pub statements: Vec<Statement>
 }
@@ -158,7 +158,7 @@ impl Display for Block {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum Expression {
     Identifier(Identifier),
     Primitive(Primitive),
@@ -270,9 +270,11 @@ impl Display for Identifier {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum Primitive {
     Int(i64),
+    Float(f64),
+    Hex(i64),
     String(String),
     Bool(bool),
 }
@@ -292,6 +294,30 @@ impl<'a> Parse<'a> for Primitive {
                     }
                 }
             },
+            Token::Float(value) => {
+                let parsed = value.parse();
+
+                match parsed {
+                    Ok(value) => Self::Float(value),
+                    Err(err) => {
+                        parser.errors.push(crate::parser::Error::Float(err));
+
+                        return None;
+                    }
+                }
+            },
+            Token::Hex(value) => {
+                let parsed = value.parse();
+
+                match parsed {
+                    Ok(value) => Self::Hex(value),
+                    Err(_) => {
+                        parser.errors.push(crate::parser::Error::Hex);
+
+                        return None;
+                    }
+                }
+            }
             Token::String(value) => {
                 Self::String(value.to_owned())
             }
@@ -312,13 +338,15 @@ impl Display for Primitive {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Self::Int(value) => write!(f, "{}", value),
+            Self::Float(value) => write!(f, "{}", value),
+            Self::Hex(value) => write!(f, "{}", value),
             Self::String(value) => write!(f, "\"{}\"", value),
             Self::Bool(value) => write!(f, "{}", value),
         }
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Prefix {
     pub operator: Token,
     pub right: Box<Expression>,
@@ -351,7 +379,7 @@ impl Prefix {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Infix {
     pub left: Box<Expression>,
     pub operator: Token,
@@ -388,7 +416,7 @@ impl Infix {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Conditional {
     pub condition: Box<Expression>,
     pub resolution: Block,
@@ -444,7 +472,7 @@ impl Display for Conditional {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct FunctionDefinition {
     pub identifier: Identifier,
     pub parameters: Vec<Identifier>,
@@ -511,7 +539,7 @@ impl Display for FunctionDefinition {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct FunctionCall {
     pub function: Box<Expression>,
     pub arguments: Vec<Expression>,

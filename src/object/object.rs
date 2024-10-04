@@ -11,6 +11,8 @@ pub const FALSE: Object = Object::Boolean(Boolean { value: false });
 #[derive(Debug, PartialEq)]
 pub enum ObjectType {
     Integer,
+    Float,
+    Hex,
     String,
     Boolean,
     Return,
@@ -25,6 +27,8 @@ impl Display for ObjectType {
             Self::Boolean => "Boolean",
             Self::String => "String",
             Self::Integer => "Integer",
+            Self::Float => "Float",
+            Self::Hex => "Hexadecimal",
             Self::Return => "Return",
             Self::Function => "Function",
             Self::Error => "Error",
@@ -35,9 +39,11 @@ impl Display for ObjectType {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum Object {
     Integer(Integer),
+    Float(Float),
+    Hex(Hex),
     String(StringObj),
     Boolean(Boolean),
     Return(Return),
@@ -50,6 +56,8 @@ impl Object {
     pub fn inspect(&self) -> String {
         match self {
             Self::Integer(Integer { value }) => format!("{}", value),
+            Self::Float(Float { value }) => format!("{}", value),
+            Self::Hex(Hex { value }) => format!("{}", value),
             Self::String(StringObj { value }) => format!("\"{}\"", value),
             Self::Boolean(Boolean { value }) => format!("{}", value),
             Self::Return(Return { value }) => value.inspect(),
@@ -74,6 +82,8 @@ impl Object {
     pub fn _type(&self) -> ObjectType {
         match self {
             Self::Integer(_) => ObjectType::Integer,
+            Self::Float(_) => ObjectType::Float,
+            Self::Hex(_) => ObjectType::Hex,
             Self::String(_) => ObjectType::String,
             Self::Boolean(_) => ObjectType::Boolean,
             Self::Return(_) => ObjectType::Return,
@@ -92,6 +102,28 @@ pub struct Integer {
 impl From<i64> for Integer {
     fn from(value: i64) -> Self {
         Integer { value }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct Float {
+    pub value: f64,
+}
+
+impl From<f64> for Float {
+    fn from(value: f64) -> Self {
+        Float { value }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Hex {
+    pub value: i64,
+}
+
+impl From<i64> for Hex {
+    fn from(value: i64) -> Self {
+        Hex { value }
     }
 }
 
@@ -117,12 +149,12 @@ impl From<bool> for Boolean {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Return {
     pub value: Box<Object>,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Function {
     pub identifier: String,
     pub parameters: Vec<Identifier>,

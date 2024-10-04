@@ -3,7 +3,7 @@ use std::{cell::RefCell, rc::Rc};
 use crate::{
     ast::{Expression, Primitive, Statement},
     object::{
-        environment::Environment, Boolean, Error, Function, Integer, Object, ObjectType, Return, StringObj, FALSE, NULL, TRUE
+        environment::Environment, Boolean, Error, Float, Function, Hex, Integer, Object, ObjectType, Return, StringObj, FALSE, NULL, TRUE
     }, 
     token::Token
 };
@@ -42,6 +42,12 @@ fn eval_expression(expression: crate::ast::Expression, env: Rc<RefCell<Environme
                 Primitive::Int(value) => {
                     Object::Integer(Integer { value })
                 },
+                Primitive::Float(value) => {
+                    Object::Float(Float { value })
+                },
+                Primitive::Hex(value) => {
+                    Object::Hex(Hex { value })
+                }
                 Primitive::String(value) => {
                     Object::String(StringObj { value })
                 }
